@@ -57,7 +57,7 @@ def get_current_price(ticker):
 upbit = pyupbit.Upbit(access, secret)
 print("autotrade start")
 # 시작 메세지 슬랙 전송
-post_message(myToken, "#crypto", "autotrade start")
+post_message(myToken, "#autotrade", "autotrade start")
 
 coinName = "DAWN"
 tradingCoin = "KRW-DAWN"
@@ -80,14 +80,14 @@ while True:
 
                 if krw > 5000:  # 최소 거래 금액인 5천원 이상이면
                     buy_result = upbit.buy_market_order(tradingCoin, krw * 0.9995)
-                    post_message(myToken, "#crypto", str(coinName) + " buy : " + str(buy_result))
+                    post_message(myToken, "#autotrade", str(coinName) + " buy : " + str(buy_result))
         else:
             btc = get_balance(coinName)
             if btc > 0.8:  # 코인 최소 거래 금액 5천원 이상이면
                 sell_result = upbit.sell_market_order(tradingCoin, btc * 0.9995)  # 전량 매도
-                post_message(myToken, "#crypto", str(coinName) + " buy : " + str(sell_result))
+                post_message(myToken, "#autotrade", str(coinName) + " buy : " + str(sell_result))
         time.sleep(1)
     except Exception as e:
         print(e)
-        post_message(myToken, "#crypto", e)
+        post_message(myToken, "#autotrade", e)
         time.sleep(1)
