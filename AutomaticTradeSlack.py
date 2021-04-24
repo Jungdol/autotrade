@@ -71,7 +71,7 @@ while True:
 
         # 오전 9시 < 현재 < 8시 59분 50초
         if start_time < now < end_time - datetime.timedelta(seconds=10):
-            target_price = get_target_price(tradingCoin, 0.5)
+            target_price = get_target_price(tradingCoin, 0.1)
             ma15 = get_ma15(tradingCoin)
             current_price = get_current_price(tradingCoin)
             
