@@ -58,31 +58,34 @@ upbit = pyupbit.Upbit(access, secret)
 print("autotrade start")
 # 시작 메세지 슬랙 전송
 post_message(myToken, "#crypto", "autotrade start")
-coin = "BTC"
+
+coinName = "DAWN"
+tradingCoin = "KRW-DAWN"
+
 while True:
     try:
         now = datetime.datetime.now()
-        start_time = get_start_time("KRW-BTC")  # 오전 9시
+        start_time = get_start_time(tradingCoin)  # 오전 9시
         end_time = start_time + datetime.timedelta(days=1)  # 오전 9시 + 1일
         print(now)
 
         # 오전 9시 < 현재 < 8시 59분 50초
         if start_time < now < end_time - datetime.timedelta(seconds=10):
-            target_price = get_target_price("KRW-BTC", 0.5)
-            ma15 = get_ma15("KRW-BTC")
-            current_price = get_current_price("KRW-BTC")
+            target_price = get_target_price(tradingCoin, 0.5)
+            ma15 = get_ma15(tradingCoin)
+            current_price = get_current_price(tradingCoin)
             
             if target_price < current_price and ma15 < current_price:
                 krw = get_balance("KRW")
 
-                if krw > 5000: # 최소 거래 금액인 5천원 이상이면
-                    buy_result = upbit.buy_market_order("KRW-BTC", krw * 0.9995)
-                    post_message(myToken, "#crypto", str(coin) + " buy : " + str(buy_result))
+                if krw > 5000:  # 최소 거래 금액인 5천원 이상이면
+                    buy_result = upbit.buy_market_order(tradingCoin, krw * 0.9995)
+                    post_message(myToken, "#crypto", str(coinName) + " buy : " + str(buy_result))
         else:
-            btc = get_balance("BTC")
-            if btc > 0.00008: # 비트코인 최소 거래 금액 5천원 이상이면
-                sell_result = upbit.sell_market_order("KRW-BTC", btc * 0.9995)  # 전량 매도
-                post_message(myToken, "#crypto", str(coin) + " buy : " + str(sell_result))
+            btc = get_balance(coinName)
+            if btc > 0.8:  # 코인 최소 거래 금액 5천원 이상이면
+                sell_result = upbit.sell_market_order(tradingCoin, btc * 0.9995)  # 전량 매도
+                post_message(myToken, "#crypto", str(coinName) + " buy : " + str(sell_result))
         time.sleep(1)
     except Exception as e:
         print(e)

@@ -2,9 +2,9 @@ import pyupbit
 import numpy as np
 
 # OHLCV(open, high, low, close, volume)로 당일 시가, 고가, 저가 / count 는 날짜
-df = pyupbit.get_ohlcv("KRW-BTC", count=10)
+df = pyupbit.get_ohlcv("KRW-DAWN", count=7)
 # 변동폭 * ㅏ 계산, (고가 - 저가) * k값
-df['range'] = (df['high'] - df['low']) * 0.5
+df['range'] = (df['high'] - df['low']) * 0.1
 # target(매구사), range 컬럼을 한 칸씩 밑으로 내림(.shift(1))
 df['target'] = df['open'] + df['range'].shift(1)
 # 수수료
@@ -22,4 +22,4 @@ df['dd'] = (df['hpr'].cummax() - df['hpr']) / df['hpr'].cummax() * 100
 # MDD 계산
 print("MDD(%): ", df['dd'].max())
 # 엑셀로 출력
-df.to_excel("dd.xlsx")
+df.to_excel("dawn.xlsx")
