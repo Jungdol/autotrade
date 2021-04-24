@@ -5,7 +5,7 @@ import requests
 
 access = "your-access"
 secret = "your-secret"
-myToken = "xoxp-2021761605520-1991181342998-1994882598181-5d0305e2634ca9b2759cf0bda4073cee"
+myToken = "xoxp-token"
 
 
 def post_message(token, channel, text):
