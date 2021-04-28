@@ -53,14 +53,26 @@ def get_current_price(ticker):
     return pyupbit.get_orderbook(tickers=ticker)[0]["orderbook_units"][0]["ask_price"]
 
 
+coinName = "CBK"
+tradingCoin = "KRW-CBK"
+k = 0.1
+
+slackChannel = "변동성-전략"
+
 # 로그인
 upbit = pyupbit.Upbit(access, secret)
-print("autotrade start")
-# 시작 메세지 슬랙 전송
-post_message(myToken, "#autotrade", "autotrade start")
 
-coinName = "DAWN"
-tradingCoin = "KRW-DAWN"
+# 우리나라 화폐, 암호화폐 생성
+krw = upbit.get_balance("KRW")
+coins = upbit.get_balance(coinName)
+
+# 얼마나 파는 지, 얼마나 사는 지 설정
+buyValue = krw * 0.9995
+sellValue = coins * 0.9995
+
+print("Autotrade start")
+# 시작 메세지 슬랙 전송
+post_message(myToken, slackChannel, "변동성 돌파 전략으로 자동매매 시작\n매수, 매도 코인 : " + str(coinName) + " " + "k값 : " + str(k))
 
 while True:
     try:
@@ -71,23 +83,21 @@ while True:
 
         # 오전 9시 < 현재 < 8시 59분 50초
         if start_time < now < end_time - datetime.timedelta(seconds=10):
-            target_price = get_target_price(tradingCoin, 0.1)
+            target_price = get_target_price(tradingCoin, k)
             ma15 = get_ma15(tradingCoin)
             current_price = get_current_price(tradingCoin)
-            
+
             if target_price < current_price and ma15 < current_price:
-                krw = get_balance("KRW")
 
                 if krw > 5000:  # 최소 거래 금액인 5천원 이상이면
-                    buy_result = upbit.buy_market_order(tradingCoin, krw * 0.9995)
-                    post_message(myToken, "#autotrade", str(coinName) + " buy : " + str(buy_result))
+                    buy_result = upbit.buy_market_order(tradingCoin, buyValue)  # buyValue 값만큼 매수
+                    post_message(myToken, slackChannel, str(coinName) + " buy : " + str(buy_result))
         else:
-            btc = get_balance(coinName)
-            if btc > 0.8:  # 코인 최소 거래 금액 5천원 이상이면
-                sell_result = upbit.sell_market_order(tradingCoin, btc * 0.9995)  # 전량 매도
-                post_message(myToken, "#autotrade", str(coinName) + " buy : " + str(sell_result))
+            if coins > 0.8:  # 코인 최소 거래 금액 5천원 이상이면
+                sell_result = upbit.sell_market_order(tradingCoin, sellValue)  # buyValue 값만큼 매도
+                post_message(myToken, slackChannel, str(coinName) + " sell : " + str(sell_result))
         time.sleep(1)
     except Exception as e:
         print(e)
-        post_message(myToken, "#autotrade", e)
+        post_message(myToken, slackChannel, e)
         time.sleep(1)
