@@ -10,7 +10,7 @@ count 값에 몇일을 조회할 지 넣으시고, k 값에는 말 그대로 k �
 AutomaticTradeSlack.py 는 access, secret 에 각각 업비트 API에 있는 값을 넣고 myToken 는 slack 토큰 값을 넣으시면 됩니다.<br>
 coinName 에는 코인 이름을 예 : BTC<br>
 tradingCoin에는 KRW-코인 이름을 넣으시면 됩니다. 예 : KRW-BTC<br>
-k 에는 말 그대로 k값을 넣으시면 됩니다. 예 : 0.5<br>
+k 에는 말 그대로 k 값을 넣으시면 됩니다. 예 : 0.5<br>
 나머지는 코드 내에 주석을 보시면 될 듯 합니다.<br>
 <br><br>
 이후 AutomaticTradeSlack.py 를 입맛에 맞게 수정하신 후 서버같은 곳에 돌리시면 됩니다.
