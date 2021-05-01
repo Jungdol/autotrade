@@ -53,8 +53,8 @@ def get_current_price(ticker):
     return pyupbit.get_orderbook(tickers=ticker)[0]["orderbook_units"][0]["ask_price"]
 
 
-coinName = "CBK"
-tradingCoin = "KRW-CBK"
+coinName = "COIN"
+tradingCoin = "KRW-COIN"
 k = 0.1
 
 slackChannel = "변동성-전략"
