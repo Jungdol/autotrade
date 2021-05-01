@@ -93,7 +93,7 @@ while True:
                     buy_result = upbit.buy_market_order(tradingCoin, buyValue)  # buyValue 값만큼 매수
                     post_message(myToken, slackChannel, str(coinName) + " buy : " + str(buy_result))
         else:
-            if coins > 0.8:  # 코인 최소 거래 금액 5천원 이상이면
+            if coins > 0.8:  # 코인 최소 거래 금액 5천원 이상이면 (사용자가 직접 수정)
                 sell_result = upbit.sell_market_order(tradingCoin, sellValue)  # buyValue 값만큼 매도
                 post_message(myToken, slackChannel, str(coinName) + " sell : " + str(sell_result))
         time.sleep(1)
