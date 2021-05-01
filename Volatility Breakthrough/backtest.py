@@ -5,7 +5,7 @@ coin = "KRW-COIN"
 
 # OHLCV(open, high, low, close, volume)로 당일 시가, 고가, 저가, 종가, 거래량 / count 는 날짜
 df = pyupbit.get_ohlcv(coin, count=7)
-# 변동폭 * ㅏ 계산, (고가 - 저가) * k값
+# 변동폭 * k 계산, (고가 - 저가) * k값
 df['range'] = (df['high'] - df['low']) * 0.5
 # target(매구사), range 컬럼을 한 칸씩 밑으로 내림(.shift(1))
 df['target'] = df['open'] + df['range'].shift(1)
