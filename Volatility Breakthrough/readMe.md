@@ -14,6 +14,3 @@ k 에는 말 그대로 k 값을 넣으시면 됩니다. 예 : 0.5<br>
 나머지는 코드 내에 주석을 보시면 될 듯 합니다.<br>
 <br><br>
 이후 AutomaticTradeSlack.py 를 입맛에 맞게 수정하신 후 서버같은 곳에 돌리시면 됩니다.
-<br><br>
-pip install pyupbit<br>
-pip install requests
