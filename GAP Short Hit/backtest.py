@@ -8,9 +8,10 @@ import pandas as pd
 def get_ohlcv(ticker):
     dfs = []
     # 조회할 코인, 일봉 또는 분봉으로 조회, 적힌 날짜, 시간까지 200개의 데이터 조회
-    # df = pyupbit.get_ohlcv(ticker, interval="minute1", to="20210423 11:00:00")
-    df = pyupbit.get_ohlcv(ticker, interval="minute1", to="20210414 23:00:00")
+    df = pyupbit.get_ohlcv(ticker, interval="minute1", to="20210423 11:00:00")
+    # df = pyupbit.get_ohlcv(ticker, interval="minute1", to="20210414 23:00:00")
     # OHLCV(open, high, low, close, volume)로 당일 시가, 고가, 저가, 종가, 거래량
+    dfs.append(df)
 
     for i in range(60):
         df = pyupbit.get_ohlcv(ticker, interval="minute1", to=df.index[0])  # 과거 데이터 200개 조회
@@ -67,8 +68,8 @@ def short_trading_for_1per(df):
             # 수수료 0.005 + 슬리피지 0.004
             # 1.01 - (수수료 + 슬리피지)
 
-    ''' 주석 처리부분은 그래프로 시각화 하게 만드는 부분임임
-    candle= go.Candlestick(
+     # 주석 처리부분은 그래프로 시각화 하게 만드는 부분임임
+    candle = go.Candlestick(
         x=df.index,
         open=df['open'],
         high=df['high'],
@@ -91,17 +92,17 @@ def short_trading_for_1per(df):
             y=df.loc[idx, 'open']
         )
     fig.show()
-    '''
+
     return acc_ror
 
-'''
+
 # 이 부분은 데이터 로딩이 오래걸려 따로 엑셀문서로 만드는 부분
-for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA"]:
+for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA", "KRW-AHT"]:
     df = get_ohlcv(ticker)
     df.to_excel(f"{ticker}.xlsx")
-'''
 
-for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA"]:
+
+for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA", "KRW-AHT"]:
 # for ticker in ["KRW-LTC"]:  # LTC 가 급락으로 인해 수익률도 같이 떨어져 테스트 용으로 사용했음
     df = pd.read_excel(f"{ticker}.xlsx", index_col=0)
     ror = short_trading_for_1per(df)
