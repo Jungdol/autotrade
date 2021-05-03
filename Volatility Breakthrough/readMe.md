@@ -6,7 +6,7 @@ bestk.py 는 이후에 엑셀파일로 나오게 수정할 예정입니다.<br>~
 
 **이제 엑셀파일로 값이 나옵니다.**
 ![image](https://user-images.githubusercontent.com/61561973/116899903-19437580-ac73-11eb-81a4-eed642b6693b.png)<br>
-엑셀파일 실행 후 필터설정 해주세요.
+엑셀파일 실행 후 필터설정 해주세요.<br>
 ![image](https://user-images.githubusercontent.com/61561973/116899954-295b5500-ac73-11eb-96ab-6d8738e4b0d9.png)<br>
 그러면 이렇게 오름/내림차순 정렬을 할 수 있습니다.
 <br><br>
