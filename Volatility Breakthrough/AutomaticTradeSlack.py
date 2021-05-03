@@ -70,8 +70,11 @@ coins = upbit.get_balance(coinName)
 buyValue = krw * 0.9995
 sellValue = coins * 0.9995
 
-print("Autotrade start")
+# 현재 매도 호가
+nowCallingPrice = pyupbit.get_orderbook(tickers=tradingCoin)[0]["orderbook_units"][0]["ask_price"]
+
 # 시작 메세지 슬랙 전송
+print("Autotrade start")
 post_message(myToken, slackChannel, "변동성 돌파 전략으로 자동매매 시작\n매수, 매도 코인 : " + str(coinName) + " " + "k값 : " + str(k))
 
 while True:
@@ -93,7 +96,7 @@ while True:
                     buy_result = upbit.buy_market_order(tradingCoin, buyValue)  # buyValue 값만큼 매수
                     post_message(myToken, slackChannel, str(coinName) + " buy : " + str(buy_result))
         else:
-            if coins > 0.8:  # 코인 최소 거래 금액 5천원 이상이면 (사용자가 직접 수정)
+            if coins > 5000/nowCallingPrice:  # 코인 최소 거래 금액 5천원 이상이면
                 sell_result = upbit.sell_market_order(tradingCoin, sellValue)  # buyValue 값만큼 매도
                 post_message(myToken, slackChannel, str(coinName) + " sell : " + str(sell_result))
         time.sleep(1)
