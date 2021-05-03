@@ -1,11 +1,14 @@
 import time
 import pyupbit
 import numpy as np
+import pandas as pd
 import sys
 
 # coin = "KRW-BTC"
 
 coins = pyupbit.get_tickers(fiat="KRW")
+
+nowTime = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 
 
 def get_ror(counts, coin, k=0.5):
@@ -23,47 +26,26 @@ def get_ror(counts, coin, k=0.5):
     return ror
 
 
-max_coin = []
-max_k = []
-'''
-for count in range(3, 7):
+def allCoins():
+    global dfs
+    data = []
     ks = []
-    print("------- " + str(count) + " -------")
-    for k in np.arange(0.1, 1.0, 0.1):
-        ror = get_ror(count, "KRW-STORJ", k)
-        ks.append(ror)
-        print("%.1f %f" % (k, ror))
-    print("high k\n0." + str(ks.index(max(ks)) + 1) + " %f" % max(ks))
-    time.sleep(0.5)
+    rors = []
+    for i in range(0, len(coins)):
+        for count in range(3, 8):
+            dfCoins = coins[i]
+            days = count
+            for k in np.arange(0.1, 1.0, 0.1):
+                ror = get_ror(count, coins[i], k)
+                ks.append(k)
+                rors.append(ror)
+                data.append([dfCoins, days, k, ror])
 
-'''
-sys.stdout = open("output.txt", 'w')
+            time.sleep(0.2)
 
-for i in range(0, len(coins)):
-    tmp_ks = 0
-    tmp_coins = ""
-    print("---------- " + coins[i] + " ---------")
-    for count in range(3, 8):
-        ks = []
-        k = 0
-        ror = 0
-        print("------- " + str(count) + " -------")
-        for k in np.arange(0.1, 1.0, 0.1):
-            ror = get_ror(count, coins[i], k)
-            ks.append(ror)
-            print("%.1f %f" % (k, ror))
+        dfs = pd.DataFrame(data, columns=['CoinName', 'Days', 'k값', '수익'])
 
-        tmp = "high k\n0." + str(ks.index(max(ks)) + 1)
-        print("high k\n0." + str(ks.index(max(ks)) + 1) + " %f" % max(ks))
-        time.sleep(0.25)
-        if count == 4:
-            tmp_ks = max(ks)
-            tmp_coins = coins[i]
-        elif tmp_ks < max(ks):
-            tmp_ks = max(ks)
-            tmp_coins = coins[i]
+    return dfs
 
-    print("\n" + tmp_coins, tmp_ks)
 
-print("\n" + str(coins))
-print("\n" + str(len(coins)))
+allCoins().to_excel(str(nowTime)+" upbit Coins.xlsx", index=False)
