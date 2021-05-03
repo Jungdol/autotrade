@@ -4,12 +4,15 @@ import time
 import pyupbit
 from collections import deque
 
+coinName = "COIN"
+tradingCoin = "KRW-COIN"
+
 
 class Consumer(threading.Thread):
     def __init__(self, q):
         super().__init__()
         self.q = q
-        self.ticker = "KRW-ADA"
+        self.ticker = tradingCoin
 
         self.ma15 = deque(maxlen=15)
         self.ma50 = deque(maxlen=50)
@@ -86,7 +89,7 @@ class Producer(threading.Thread):
 
     def run(self):
         while True:
-            price = pyupbit.get_current_price("KRW-ADA")
+            price = pyupbit.get_current_price(tradingCoin)
             self.q.put(price)
             time.sleep(60)
 
