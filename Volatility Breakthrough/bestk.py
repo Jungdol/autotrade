@@ -27,12 +27,15 @@ def get_ror(counts, coin, k=0.5):
 
 
 def allCoins():
+    print("데이터 수집, 작성 시작합니다.")
     global dfs
     data = []
     ks = []
     rors = []
     for i in range(0, len(coins)):
+        print(str(coins[i]) + " 데이터 수집 중")
         for count in range(3, 8):
+            print(str(count)+"일 전 데이터 작성 중")
             dfCoins = coins[i]
             days = count
             for k in np.arange(0.1, 1.0, 0.1):
@@ -42,9 +45,10 @@ def allCoins():
                 data.append([dfCoins, days, k, ror])
 
             time.sleep(0.2)
-
+        print(str(coins[i]) + " 작업 완료\n")
         dfs = pd.DataFrame(data, columns=['CoinName', 'Days', 'k값', '수익'])
 
+    print("모든 작업 완료")
     return dfs
 
 
