@@ -5,11 +5,13 @@ import time
 import pandas as pd
 
 
+nowTime = time.strftime('%Y%m%d', time.localtime(time.time()))
+coin = "KRW-WAVES"
+
 def get_ohlcv(ticker):
     dfs = []
     # 조회할 코인, 일봉 또는 분봉으로 조회, 적힌 날짜, 시간까지 200개의 데이터 조회
-    df = pyupbit.get_ohlcv(ticker, interval="minute1", to="20210423 11:00:00")
-    # df = pyupbit.get_ohlcv(ticker, interval="minute1", to="20210414 23:00:00")
+    df = pyupbit.get_ohlcv(ticker, interval="minute1", to=nowTime + " 00:08:00")
     # OHLCV(open, high, low, close, volume)로 당일 시가, 고가, 저가, 종가, 거래량
     dfs.append(df)
 
@@ -23,7 +25,7 @@ def get_ohlcv(ticker):
     return df
 
 
-def short_trading_for_1per(df):
+def short_trading_for_1per(df, inChart):
     # 이동 평균선 (급락으로 인해 120분 이동 평균선도 적용)
     ma15 = df['close'].rolling(15).mean().shift(1)
     ma50 = df['close'].rolling(50).mean().shift(1)
@@ -68,44 +70,69 @@ def short_trading_for_1per(df):
             # 수수료 0.005 + 슬리피지 0.004
             # 1.01 - (수수료 + 슬리피지)
 
-     # 주석 처리부분은 그래프로 시각화 하게 만드는 부분임임
-    candle = go.Candlestick(
-        x=df.index,
-        open=df['open'],
-        high=df['high'],
-        low=df['low'],
-        close=df['close'],
-    )
 
-    ror_chart = go.Scatter(
-        x=ax_ror,
-        y=ay_ror
-    )
-
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-    fig.add_trace(candle)
-    fig.add_trace(ror_chart, secondary_y=True)
-
-    for idx in df.index[cond_buy]:
-        fig.add_annotation(
-            x=idx,
-            y=df.loc[idx, 'open']
+# 주석 처리부분은 그래프로 시각화 하게 만드는 부분임
+    if inChart:
+        candle = go.Candlestick(
+            x=df.index,
+            open=df['open'],
+            high=df['high'],
+            low=df['low'],
+            close=df['close'],
         )
-    fig.show()
+
+        ror_chart = go.Scatter(
+            x=ax_ror,
+            y=ay_ror
+        )
+
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+        fig.add_trace(candle)
+        fig.add_trace(ror_chart, secondary_y=True)
+
+        for idx in df.index[cond_buy]:
+            fig.add_annotation(
+                x=idx,
+                y=df.loc[idx, 'open']
+            )
+        fig.show()
+    elif not inChart:
+        return acc_ror
 
     return acc_ror
 
 
 # 이 부분은 데이터 로딩이 오래걸려 따로 엑셀문서로 만드는 부분
-for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA", "KRW-AHT"]:
-    df = get_ohlcv(ticker)
-    df.to_excel(f"{ticker}.xlsx")
+isData = input("새로운 데이터 파일(엑셀 파일)을 생성하시겠습니까? y/n")
+if isData == "y":
+    # for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA", "KRW-WAVES"]:
+    for ticker in [coin]:
+        df = get_ohlcv(ticker)
+        df.to_excel(f"{ticker}.xlsx")
+elif isData == "n":
+    print("데이터 파일을 생성하지 않습니다.")
+else:
+    print("값을 잘못 입력하셨습니다.\n데이터 파일을 생성하지 않습니다.")
 
+# 그래프를 실행할 지 여부
+inGraph = None
+graph = input("그래프 함수를 보시겠습니까? y/n")
+if graph == "y":
+    inGraph = True
+    print("그래프를 크롬창에 띄웁니다.")
+elif graph == "n":
+    print("그래프를 띄우지 않습니다.")
+    inGraph = False
+else:
+    print("값을 잘못 입력하셨습니다.\n그래프를 띄우지 않습니다.")
 
-for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA", "KRW-AHT"]:
+# for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA", "KRW-WAVES"]:
 # for ticker in ["KRW-LTC"]:  # LTC 가 급락으로 인해 수익률도 같이 떨어져 테스트 용으로 사용했음
+
+for ticker in [coin]:
     df = pd.read_excel(f"{ticker}.xlsx", index_col=0)
-    ror = short_trading_for_1per(df)
+
+    ror = short_trading_for_1per(df, inGraph)
     periodYield = df.iloc[-1, 3] / df.iloc[0, 0]  # 기간 수익률
 
     print(ticker, f"{ror:.2f}", f"{periodYield:.2f}")

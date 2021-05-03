@@ -3,8 +3,10 @@ import pyupbit
 import datetime
 import requests
 
-access = "your-access"
-secret = "your-secret"
+with open("upbit.txt", "r") as f:
+    key0 = f.readline().strip()
+    key1 = f.readline().strip()
+
 myToken = "xoxp-token"
 
 
@@ -60,18 +62,15 @@ k = 0.1
 slackChannel = "변동성-전략"
 
 # 로그인
-upbit = pyupbit.Upbit(access, secret)
+upbit = pyupbit.Upbit(key0, key1)
 
 # 우리나라 화폐, 암호화폐 생성
 krw = upbit.get_balance("KRW")
 coins = upbit.get_balance(coinName)
 
 # 얼마나 파는 지, 얼마나 사는 지 설정
-buyValue = krw * 0.9995
+buyValue = krw * 0.9995 # 0.9995 인 이유는 수수료 0.005% 때문이다.
 sellValue = coins * 0.9995
-
-# 현재 매도 호가
-nowCallingPrice = pyupbit.get_orderbook(tickers=tradingCoin)[0]["orderbook_units"][0]["ask_price"]
 
 # 시작 메세지 슬랙 전송
 print("Autotrade start")
@@ -92,11 +91,12 @@ while True:
 
             if target_price < current_price and ma15 < current_price:
 
-                if krw > 5000:  # 최소 거래 금액인 5천원 이상이면
+                if krw > 5000 and buyValue > 5000:  # 최소 거래 금액인 5천원 이상이면
                     buy_result = upbit.buy_market_order(tradingCoin, buyValue)  # buyValue 값만큼 매수
                     post_message(myToken, slackChannel, str(coinName) + " buy : " + str(buy_result))
+
         else:
-            if coins > 5000/nowCallingPrice:  # 코인 최소 거래 금액 5천원 이상이면
+            if coins > 5000/get_current_price(tradingCoin):  # 코인 최소 거래 금액 5천원 이상이면
                 sell_result = upbit.sell_market_order(tradingCoin, sellValue)  # buyValue 값만큼 매도
                 post_message(myToken, slackChannel, str(coinName) + " sell : " + str(sell_result))
         time.sleep(1)
