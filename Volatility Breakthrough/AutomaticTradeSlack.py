@@ -91,7 +91,7 @@ while True:
 
             if target_price < current_price and ma15 < current_price:
 
-                if krw > 5000 and buyValue > 5000:  # 최소 거래 금액인 5천원 이상이면
+                if krw > 5000 and krw >= buyValue:  # 최소 거래 금액인 5천원 이상이면
                     buy_result = upbit.buy_market_order(tradingCoin, buyValue)  # buyValue 값만큼 매수
                     post_message(myToken, slackChannel, str(coinName) + " buy : " + str(buy_result))
 
