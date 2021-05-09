@@ -61,6 +61,8 @@ k = 0.1
 
 slackChannel = "변동성-전략"
 
+inBuy = True  # 한 번만 매수하기 위함
+
 # 로그인
 upbit = pyupbit.Upbit(key0, key1)
 
@@ -69,7 +71,7 @@ krw = upbit.get_balance("KRW")
 coins = upbit.get_balance(coinName)
 
 # 얼마나 파는 지, 얼마나 사는 지 설정
-buyValue = krw * 0.9995 # 0.9995 인 이유는 수수료 0.005% 때문이다.
+buyValue = krw * 0.9995  # 0.9995 인 이유는 수수료 0.005% 때문이다.
 sellValue = coins * 0.9995
 
 # 시작 메세지 슬랙 전송
@@ -91,14 +93,16 @@ while True:
 
             if target_price < current_price and ma15 < current_price:
 
-                if krw > 5000 and krw >= buyValue:  # 최소 거래 금액인 5천원 이상이면
+                if krw > 5000 and inBuy == True:  # 최소 거래 금액인 5천원 이상이면
                     buy_result = upbit.buy_market_order(tradingCoin, buyValue)  # buyValue 값만큼 매수
                     post_message(myToken, slackChannel, str(coinName) + " buy : " + str(buy_result))
+                    inBuy = False  # 매수 후 False 로 매수 안되게 함
 
         else:
-            if coins > 5000/get_current_price(tradingCoin):  # 코인 최소 거래 금액 5천원 이상이면
+            if coins > 5000 / get_current_price(tradingCoin):  # 코인 최소 거래 금액 5천원 이상이면
                 sell_result = upbit.sell_market_order(tradingCoin, sellValue)  # buyValue 값만큼 매도
                 post_message(myToken, slackChannel, str(coinName) + " sell : " + str(sell_result))
+                inBuy = True  # 매도 후 True 로 9시에 다시 매수
         time.sleep(1)
     except Exception as e:
         print(e)

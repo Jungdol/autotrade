@@ -4,14 +4,15 @@ from plotly.subplots import make_subplots
 import time
 import pandas as pd
 
-
+coins = pyupbit.get_tickers(fiat="KRW")
 nowTime = time.strftime('%Y%m%d', time.localtime(time.time()))
-coin = "KRW-WAVES"
+coin = "KRW-COIN"
+
 
 def get_ohlcv(ticker):
     dfs = []
     # 조회할 코인, 일봉 또는 분봉으로 조회, 적힌 날짜, 시간까지 200개의 데이터 조회
-    df = pyupbit.get_ohlcv(ticker, interval="minute1", to=nowTime + " 00:08:00")
+    df = pyupbit.get_ohlcv(ticker, interval="minute1", to=nowTime + " 00:18:50")
     # OHLCV(open, high, low, close, volume)로 당일 시가, 고가, 저가, 종가, 거래량
     dfs.append(df)
 
@@ -70,8 +71,7 @@ def short_trading_for_1per(df, inChart):
             # 수수료 0.005 + 슬리피지 0.004
             # 1.01 - (수수료 + 슬리피지)
 
-
-# 주석 처리부분은 그래프로 시각화 하게 만드는 부분임
+    # 주석 처리부분은 그래프로 시각화 하게 만드는 부분임
     if inChart:
         candle = go.Candlestick(
             x=df.index,
@@ -102,15 +102,35 @@ def short_trading_for_1per(df, inChart):
     return acc_ror
 
 
+global isDatas
+
 # 이 부분은 데이터 로딩이 오래걸려 따로 엑셀문서로 만드는 부분
 isData = input("새로운 데이터 파일(엑셀 파일)을 생성하시겠습니까? y/n")
 if isData == "y":
-    # for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA", "KRW-WAVES"]:
-    for ticker in [coin]:
-        df = get_ohlcv(ticker)
-        df.to_excel(f"{ticker}.xlsx")
+    Datas = input("\n업비트에 있는 모든 코인들을 백테스트 하시겠습니까? y/n")
+    if Datas == "y":
+        for ticker in coins:
+            df = get_ohlcv(ticker)
+            df.to_excel(f"{ticker}.xlsx")
+        isDatas = True
+    elif Datas == "n":
+        # for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA", "KRW-WAVES"]:
+        for ticker in [coin]:
+            df = get_ohlcv(ticker)
+            df.to_excel(f"{ticker}.xlsx")
+        isDatas = False
+    else:
+        print("값을 잘못 입력하셨습니다.\n데이터 파일을 생성하지 않습니다.")
 elif isData == "n":
     print("데이터 파일을 생성하지 않습니다.")
+    Datas = input("\n업비트에 있는 모든 코인들을 백테스트 하시겠습니까? y/n")
+    if Datas == "y":
+        isDatas = True
+    elif Datas == "n":
+        isDatas = False
+    else:
+        print("값을 잘못 입력하셨습니다.\n모든 코인들을 백테스트 하지 않습니다.")
+        isDatas = False
 else:
     print("값을 잘못 입력하셨습니다.\n데이터 파일을 생성하지 않습니다.")
 
@@ -126,13 +146,22 @@ elif graph == "n":
 else:
     print("값을 잘못 입력하셨습니다.\n그래프를 띄우지 않습니다.")
 
-# for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA", "KRW-WAVES"]:
-# for ticker in ["KRW-LTC"]:  # LTC 가 급락으로 인해 수익률도 같이 떨어져 테스트 용으로 사용했음
+if isDatas:
+    for ticker in coins:
+        df = pd.read_excel(f"{ticker}.xlsx", index_col=0)
 
-for ticker in [coin]:
-    df = pd.read_excel(f"{ticker}.xlsx", index_col=0)
+        ror = short_trading_for_1per(df, inGraph)
+        periodYield = df.iloc[-1, 3] / df.iloc[0, 0]  # 기간 수익률
 
-    ror = short_trading_for_1per(df, inGraph)
-    periodYield = df.iloc[-1, 3] / df.iloc[0, 0]  # 기간 수익률
+        print(ticker, f"{ror:.2f}", f"{periodYield:.2f}")
+else:
+    # for ticker in ["KRW-BTC", "KRW-LTC", "KRW-ETH", "KRW-ADA", "KRW-WAVES"]:
+    # for ticker in ["KRW-LTC"]:  # LTC 가 급락으로 인해 수익률도 같이 떨어져 테스트 용으로 사용했음
 
-    print(ticker, f"{ror:.2f}", f"{periodYield:.2f}")
+    for ticker in [coin]:
+        df = pd.read_excel(f"{ticker}.xlsx", index_col=0)
+
+        ror = short_trading_for_1per(df, inGraph)
+        periodYield = df.iloc[-1, 3] / df.iloc[0, 0]  # 기간 수익률
+
+        print(ticker, f"{ror:.2f}", f"{periodYield:.2f}")

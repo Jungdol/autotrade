@@ -2,6 +2,7 @@ import threading
 import queue
 import time
 import pyupbit
+import datetime
 from collections import deque
 
 coinName = "COIN"
@@ -26,7 +27,7 @@ class Consumer(threading.Thread):
         print(len(self.ma15), len(self.ma50), len(self.ma120))
 
     def run(self):
-        global curr_ma15, curr_ma50, curr_ma120, price_open, price_buy, price_sell, ret
+        global price_buy, curr_ma15, curr_ma50, curr_ma120, price_sell
         price_curr = None
         hold_flag = False
         wait_flag = False
@@ -37,7 +38,11 @@ class Consumer(threading.Thread):
 
         upbit = pyupbit.Upbit(key0, key1)
         krw = upbit.get_balance()
-        print("보유현금", cash)
+        print("보유현금", krw)
+
+        buyValue = krw * 0.2995
+
+        i = 0
 
         while True:
             try:
@@ -53,32 +58,39 @@ class Consumer(threading.Thread):
 
                     price_open = self.q.get()
                     if hold_flag == False:
-                        price_buy = price_open * 1.01
-                        price_sell = price_open * 1.02
+                        price_buy = int(price_open * 1.01)
+                        price_sell = int(price_open * 1.02)
                     wait_flag = False
 
                 price_curr = pyupbit.get_current_price(self.ticker)
 
-                if hold_flag == False and wait_flag == False and price_curr >= price_buy and curr_ma50 <= curr_ma15 <= curr_ma50 * 1.03 and curr_ma120 <= curr_ma50:
-                    upbit.buy_market_order(self.ticker, krw * 0.2995)  # 수수료 0.05%
+                if hold_flag == False and wait_flag == False and price_curr >= price_buy and curr_ma50 * 1.03 >= curr_ma15 >= curr_ma50 >= curr_ma120:
+                    # 0.05%
+                    ret = upbit.buy_market_order(self.ticker, buyValue)
                     print("매수주문", ret)
                     time.sleep(1)
                     volume = upbit.get_balance(self.ticker)
                     ret = upbit.sell_limit_order(self.ticker, price_sell, volume)
                     print("매도주문", ret)
                     hold_flag = True
-
                 # print(price_curr, curr_ma15, curr_ma50, curr_ma120)
 
                 if hold_flag == True:
                     uncomp = upbit.get_order(self.ticker)
                     if len(uncomp) == 0:
                         krw = upbit.get_balance()
+                        print("매도완료", krw)
                         hold_flag = False
                         wait_flag = True
 
+                # 3 minutes
+                if i == (5 * 60 * 3):
+                    print(f"[{datetime.datetime.now()}] 현재가 {price_curr}, 목표가 {price_buy}, ma {curr_ma15:.2f}/{curr_ma50:.2f}/{curr_ma120:.2f}, hold_flag {hold_flag}, wait_flag {wait_flag}")
+                    i = 0
+                i += 1
             except:
                 print("error")
+
             time.sleep(0.2)
 
 
