@@ -99,7 +99,7 @@ while True:
                     inBuy = False  # 매수 후 False 로 매수 안되게 함
 
         else:
-            if coins > 5000 / get_current_price(tradingCoin):  # 코인 최소 거래 금액 5천원 이상이면
+            if coins > (5000 / get_current_price(tradingCoin)):  # 코인 최소 거래 금액 5천원 이상이면
                 sell_result = upbit.sell_market_order(tradingCoin, sellValue)  # buyValue 값만큼 매도
                 post_message(myToken, slackChannel, str(coinName) + " sell : " + str(sell_result))
                 inBuy = True  # 매도 후 True 로 9시에 다시 매수
